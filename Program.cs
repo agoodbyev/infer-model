@@ -21,8 +21,8 @@ namespace Model
         {
             t[0] = 0;
             for(int i = 0; i < N; i++)
-            {   
-
+            {
+                Console.WriteLine("Coordinates of point " + i + ":");
                 for (int j = 0; j < M; j++)
                 {
                     X[i, j] = j * 10 + i * 10 + Rand.Normal();
@@ -34,8 +34,9 @@ namespace Model
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine("Time points:");
             for (int j = 0; j < M; j++)
-                Console.Write("{0:N3}   ", t[j]);
+                Console.WriteLine("{0:N3}", t[j]);
         }
 
         static void InferMovement(int Point, int NumberOfSteps)
