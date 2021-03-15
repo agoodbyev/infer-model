@@ -9,7 +9,9 @@
       "model/1.0.0": {
         "dependencies": {
           "Microsoft.ML.Probabilistic": "0.3.2102.1701",
-          "Microsoft.ML.Probabilistic.Compiler": "0.3.2102.1701"
+          "Microsoft.ML.Probabilistic.Compiler": "0.3.2102.1701",
+          "Microsoft.ML.Probabilistic.Compiler.Visualizers.Windows": "0.3.1912.403",
+          "Microsoft.ML.Probabilistic.Visualizers.Windows": "0.3.2102.1701"
         },
         "runtime": {
           "model.dll": {}
@@ -177,6 +179,15 @@
         },
         "runtime": {
           "lib/netstandard2.0/Microsoft.ML.Probabilistic.Compiler.dll": {
+            "assemblyVersion": "0.3.2102.1701",
+            "fileVersion": "0.3.2102.1701"
+          }
+        }
+      },
+      "Microsoft.ML.Probabilistic.Compiler.Visualizers.Windows/0.3.1912.403": {},
+      "Microsoft.ML.Probabilistic.Visualizers.Windows/0.3.2102.1701": {
+        "runtime": {
+          "lib/net461/Microsoft.ML.Probabilistic.Compiler.Visualizers.Windows.dll": {
             "assemblyVersion": "0.3.2102.1701",
             "fileVersion": "0.3.2102.1701"
           }
@@ -866,6 +877,20 @@
       "sha512": "sha512-tHOcAciaKCYCkbZ6DHGjKFvPyWyXBRWC1RqE68BM+2Yy0Iizf7KjwX8vuvg5mM77bf3hia16YorOyOBWOTIUXA==",
       "path": "microsoft.ml.probabilistic.compiler/0.3.2102.1701",
       "hashPath": "microsoft.ml.probabilistic.compiler.0.3.2102.1701.nupkg.sha512"
+    },
+    "Microsoft.ML.Probabilistic.Compiler.Visualizers.Windows/0.3.1912.403": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-RLl2ZMobRGDHUM+fWtYLh5Yg3JC2uOfsM0MyLzyKZEXUbiDG51KxyPoYZa/GJwKz0cQIdK5q91o7yhYPWyF8ZA==",
+      "path": "microsoft.ml.probabilistic.compiler.visualizers.windows/0.3.1912.403",
+      "hashPath": "microsoft.ml.probabilistic.compiler.visualizers.windows.0.3.1912.403.nupkg.sha512"
+    },
+    "Microsoft.ML.Probabilistic.Visualizers.Windows/0.3.2102.1701": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xTtKZcnOILWZmBRPxjJFtzT6fao1napmFTBCuqy4grcff46Elzwmr1s4uAAfnGtdtLeVfquL4PKg2aHHeNkkBw==",
+      "path": "microsoft.ml.probabilistic.visualizers.windows/0.3.2102.1701",
+      "hashPath": "microsoft.ml.probabilistic.visualizers.windows.0.3.2102.1701.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/1.1.0": {
       "type": "package",

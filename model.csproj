@@ -8,6 +8,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.ML.Probabilistic" Version="0.3.2102.1701" />
     <PackageReference Include="Microsoft.ML.Probabilistic.Compiler" Version="0.3.2102.1701" />
+    <PackageReference Include="Microsoft.ML.Probabilistic.Compiler.Visualizers.Windows" Version="0.3.1912.403" />
+    <PackageReference Include="Microsoft.ML.Probabilistic.Visualizers.Windows" Version="0.3.2102.1701" />
   </ItemGroup>
 
 </Project>
