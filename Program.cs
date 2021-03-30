@@ -25,7 +25,7 @@ namespace Model
             Y[0, 0] = 0;
             for (int i = 0; i < N; i++)
             {
-                Console.WriteLine("Coordinates of point " + i + ":");
+                Console.WriteLine("Coordinates of point #" + i + ":");
                 for (int j = 1; j < M; j++)
                 {
                     //X[i, j] = j * 10 + i * 10 + Rand.Normal();
@@ -47,13 +47,15 @@ namespace Model
                 }
                 Console.WriteLine();
             }
-            Console.WriteLine("Time points:");
+            Console.WriteLine("Time nodes:");
             for (int j = 0; j < M; j++)
                 Console.WriteLine("{0:N3}", t[j]);
+            Console.WriteLine();
         }
 
         static Bernoulli InferMovement(int Point, int NumberOfSteps)
         {
+            Console.WriteLine("Inference for point #" + Point + ":");
             Variable<bool> IsMoving = Variable.Bernoulli(0.5);
             Variable<double> vxMean = Variable.GaussianFromMeanAndVariance(0, 100).Named("vxMean");
             Variable<double> vxSigma = Variable.GammaFromShapeAndScale(1, 1).Named("vxSigma");
@@ -84,7 +86,6 @@ namespace Model
                 ArrayY[j - M + NumberOfSteps] = Y[Point, j] - Y[Point, j - 1];
                 sumX += Math.Abs(ArrayX[j - M + NumberOfSteps]);
                 sumY += Math.Abs(ArrayY[j - M + NumberOfSteps]);
-                //Console.WriteLine(ArrayX[j - M + NumberOfSteps] + " " + ArrayX[j - M + NumberOfSteps]);
             }
 
             vx.ObservedValue = ArrayX;
@@ -96,19 +97,18 @@ namespace Model
             //InferenceEngine.Visualizer = new WindowsVisualizer();
             //engine.ShowFactorGraph = true;
 
-            Bernoulli v = engine.Infer<Bernoulli>(IsMoving);
+            Bernoulli p = engine.Infer<Bernoulli>(IsMoving);
             Gaussian xMean = engine.Infer<Gaussian>(vxMean);
             Gaussian yMean = engine.Infer<Gaussian>(vyMean);
 
             Console.WriteLine("xMean: " + xMean);
             Console.WriteLine("yMean: " + yMean);
-            Console.WriteLine("inference by vx and vy: " + v);
-            Console.WriteLine(sumX + " " + sumY);
+            Console.WriteLine("inference by vx and vy: " + p);
             Console.WriteLine();
 
-            if (v.GetProbTrue() < (1 - eps) && ((Math.Abs(xMean.GetMean()) + Math.Abs(yMean.GetMean())) > 1 || (sumX + sumY) > 4 * NumberOfSteps))
+            if (p.GetProbTrue() < (1 - eps) && ((Math.Abs(xMean.GetMean()) + Math.Abs(yMean.GetMean())) > 1 || (sumX + sumY) > 4 * NumberOfSteps))
                 return InferByModule(Point, NumberOfSteps);
-            return v;
+            return p;
         }
 
         static Bernoulli InferByModule(int Point, int NumberOfSteps)
