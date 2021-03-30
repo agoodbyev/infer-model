@@ -1,5 +1,6 @@
 ﻿using Microsoft.ML.Probabilistic.Algorithms;
 using Microsoft.ML.Probabilistic.Compiler.Visualizers;
+using Microsoft.ML.Probabilistic.Distributions;
 using Microsoft.ML.Probabilistic.Math;
 using Microsoft.ML.Probabilistic.Models;
 using System;
@@ -12,7 +13,7 @@ namespace Model
 {
     class Program
     {
-        static int N = 2, M = 15;
+        static int N = 2, M = 11;
         static double[,] X = new double[N, M];
         static double[,] Y = new double[N, M];
         static double[] t = new double[M];
@@ -20,13 +21,25 @@ namespace Model
         static void GenerateData()
         {
             t[0] = 0;
-            for(int i = 0; i < N; i++)
+            X[0, 0] = 0;
+            Y[0, 0] = 0;
+            for (int i = 0; i < N; i++)
             {
                 Console.WriteLine("Coordinates of point " + i + ":");
-                for (int j = 0; j < M; j++)
+                for (int j = 1; j < M; j++)
                 {
-                    X[i, j] = j * 10 + i * 10 + Rand.Normal();
-                    Y[i, j] = j * 10 + i * 10 + Rand.Normal();
+                    //X[i, j] = j * 10 + i * 10 + Rand.Normal();
+                    //Y[i, j] = j * 10 + i * 10 + Rand.Normal();
+
+                    //X[i, j] = Math.Cos(Math.PI * j / M) * 10 + X[i, j - 1] + Rand.Normal();
+                    //Y[i, j] = Math.Sin(Math.PI * j / M) * 10 + Y[i, j - 1] + Rand.Normal();
+
+                    X[i, j] = Math.Cos(Math.PI * 2 * (j - 1) / (M - 1)) * 10 + X[i, j - 1] + Rand.Normal();
+                    Y[i, j] = Math.Sin(Math.PI * 2 * (j - 1) / (M - 1)) * 10 + Y[i, j - 1] + Rand.Normal();
+
+                    //X[i, j] = Rand.Normal();
+                    //Y[i, j] = Rand.Normal();
+
                     Console.WriteLine("({0:N3}, {1:N3})", X[i, j], Y[i, j]);
                     if (j > 0)
                         t[j] = t[j - 1] + Rand.NormalBetween(1, 5);
@@ -39,7 +52,7 @@ namespace Model
                 Console.WriteLine("{0:N3}", t[j]);
         }
 
-        static void InferMovement(int Point, int NumberOfSteps)
+        static Bernoulli InferMovement(int Point, int NumberOfSteps)
         {
             Variable<bool> IsMoving = Variable.Bernoulli(0.5);
             Variable<double> vxMean = Variable.GaussianFromMeanAndVariance(0, 100).Named("vxMean");
@@ -52,6 +65,7 @@ namespace Model
             VariableArray<double> vy = Variable.Array<double>(range);
             double[] ArrayX = new double[NumberOfSteps];
             double[] ArrayY = new double[NumberOfSteps];
+            double eps = 0.1, sumX = 0, sumY = 0;
 
             using (Variable.If(IsMoving))
             {
@@ -68,32 +82,81 @@ namespace Model
             {
                 ArrayX[j - M + NumberOfSteps] = X[Point, j] - X[Point, j - 1];
                 ArrayY[j - M + NumberOfSteps] = Y[Point, j] - Y[Point, j - 1];
+                sumX += Math.Abs(ArrayX[j - M + NumberOfSteps]);
+                sumY += Math.Abs(ArrayY[j - M + NumberOfSteps]);
+                //Console.WriteLine(ArrayX[j - M + NumberOfSteps] + " " + ArrayX[j - M + NumberOfSteps]);
             }
 
             vx.ObservedValue = ArrayX;
             vy.ObservedValue = ArrayY;
-  
-            //vx.ObservedValue = Enumerable.Range(0, NumberOfSteps).Select(_ => 10 + Rand.Normal()).ToArray();
-            //vy.ObservedValue = Enumerable.Range(0, NumberOfSteps).Select(_ => 10 + Rand.Normal()).ToArray();
+
+            InferenceEngine engine = new InferenceEngine();
+            engine.Algorithm = new ExpectationPropagation();
+
+            //InferenceEngine.Visualizer = new WindowsVisualizer();
+            //engine.ShowFactorGraph = true;
+
+            Bernoulli v = engine.Infer<Bernoulli>(IsMoving);
+            Gaussian xMean = engine.Infer<Gaussian>(vxMean);
+            Gaussian yMean = engine.Infer<Gaussian>(vyMean);
+
+            Console.WriteLine("xMean: " + xMean);
+            Console.WriteLine("yMean: " + yMean);
+            Console.WriteLine("inference by vx and vy: " + v);
+            Console.WriteLine(sumX + " " + sumY);
+            Console.WriteLine();
+
+            if (v.GetProbTrue() < (1 - eps) && ((Math.Abs(xMean.GetMean()) + Math.Abs(yMean.GetMean())) > 1 || (sumX + sumY) > 4 * NumberOfSteps))
+                return InferByModule(Point, NumberOfSteps);
+            return v;
+        }
+
+        static Bernoulli InferByModule(int Point, int NumberOfSteps)
+        {
+            Variable<bool> IsMoving = Variable.Bernoulli(0.5);
+            Variable<double> vMean = Variable.GaussianFromMeanAndVariance(0, 100).Named("vMean");
+            Variable<double> vSigma = Variable.GammaFromShapeAndScale(1, 1).Named("vSigma");
+            Variable<double> stSigma = Variable.GammaFromShapeAndScale(1, 1).Named("staticSigma");
+            var range = new Microsoft.ML.Probabilistic.Models.Range(NumberOfSteps);
+            VariableArray<double> v = Variable.Array<double>(range);
+            double[] ArrayV = new double[NumberOfSteps];
+
+            using (Variable.If(IsMoving))
+            {
+                v[range] = Variable.GaussianFromMeanAndPrecision(vMean, vSigma).ForEach(range);
+            }
+            using (Variable.IfNot(IsMoving))
+            {
+                v[range] = Variable.GaussianFromMeanAndPrecision(0, stSigma).ForEach(range);
+            }
+            for (int j = M - NumberOfSteps; j < M; j++)
+            {
+                ArrayV[j - M + NumberOfSteps] = Math.Sqrt((X[Point, j] - X[Point, j - 1]) * (X[Point, j] - X[Point, j - 1]) + (Y[Point, j] - Y[Point, j - 1]) * (Y[Point, j] - Y[Point, j - 1]));
+            }
+
+            v.ObservedValue = ArrayV;
 
             InferenceEngine engine = new InferenceEngine();
             engine.Algorithm = new ExpectationPropagation();
             //InferenceEngine.Visualizer = new WindowsVisualizer();
-            engine.ShowFactorGraph = true;
-            var v = engine.Infer(IsMoving);
-            var xMean = engine.Infer(vxMean);
-            var yMean = engine.Infer(vyMean);
+            //engine.ShowFactorGraph = true;
 
-            Console.WriteLine(xMean);
-            Console.WriteLine(yMean);
-            Console.WriteLine(v);
+            Bernoulli p = engine.Infer<Bernoulli>(IsMoving);
+            Gaussian Mean = engine.Infer<Gaussian>(vMean);
+
+            Console.WriteLine("mean of |v|: " + Mean);
+            Console.WriteLine("inference by |v|: " + p);
+            Console.WriteLine();
+            return p;
         }
-        static void Main(string[] args)
+            static void Main(string[] args)
         {
             GenerateData();
-            for (int i = 0; i < N; i++) 
+            for (int i = 0; i < N; i++)
+            {
                 InferMovement(i, 10);
-
+                Console.WriteLine();
+            }
         }
         
     }
