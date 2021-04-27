@@ -1,0 +1,44 @@
+Steps 3-8:
+
+Point #0:
+Prob of moving = Bernoulli(1)
+Point #1:
+Prob of moving = Bernoulli(1)
+Point #2:
+Prob of moving = Bernoulli(1)
+
+Prob of having the same character of moving = 0,9999998840247568
+____________
+Steps 8-13:
+
+Point #0:
+Prob of moving = Bernoulli(1)
+Point #1:
+Prob of moving = Bernoulli(1)
+Point #2:
+Prob of moving = Bernoulli(1)
+
+Prob of having the same character of moving = 0,999735370163934
+____________
+Steps 13-18:
+
+Point #0:
+Prob of moving = Bernoulli(0,5806)
+Point #1:
+Prob of moving = Bernoulli(0,479)
+Point #2:
+Prob of moving = Bernoulli(0,5262)
+
+Prob of having the same character of moving = 0,9999999975113247
+____________
+Steps 18-23:
+
+Point #0:
+Prob of moving = Bernoulli(0,9987)
+Point #1:
+Prob of moving = Bernoulli(0,9999)
+Point #2:
+Prob of moving = Bernoulli(0,9999)
+
+Prob of having the same character of moving = 0,9999998088288701
+____________
