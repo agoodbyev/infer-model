@@ -262,7 +262,7 @@ namespace Model
             string writePath = @"C:\Users\andrey.bagduev\source\repos\model\model\output.txt";
             StreamWriter sw = new StreamWriter(writePath, false, System.Text.Encoding.Default);
             
-            for (int j = NumberOfSteps + 3; j < M; j+= NumberOfSteps)
+            for (int j = NumberOfSteps + 1; j < M; j+= NumberOfSteps)
             {
                 sw.WriteLine("Steps " + (j - NumberOfSteps) + "-" + j + ":");
                 sw.WriteLine();
